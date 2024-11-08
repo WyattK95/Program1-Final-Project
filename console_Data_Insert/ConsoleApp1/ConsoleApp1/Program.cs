@@ -36,7 +36,7 @@ namespace SpreadsheetSpelunker
             }
         }
 
-        private static DataSet? ParseTheFile(string filePathForThis = "../CY22.xlsx")
+        private static DataSet? ParseTheFile(string filePathForThis)
         {
             try
             {
@@ -89,9 +89,10 @@ namespace SpreadsheetSpelunker
                                         break;
                                     case "incident_train_car":
                                         InsertIncidentTrainCarData(conn, row);
-                                        break;
+                                        break;                                
                                     default:
-                                        _logger.LogWarning($"Unknown table name: {table.TableName}");
+                                        // Skip unrecognized table silently
+                                       // _logger.LogWarning($"Unknown table name: {table.TableName}");
                                         break;
                                 }
                             }
@@ -114,20 +115,13 @@ namespace SpreadsheetSpelunker
             string companyName = row["company_name"].ToString();
             string orgType = row["org_type"].ToString();
 
-            try
+            using (var cmd = new NpgsqlCommand())
             {
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO company (company_name, org_type) VALUES (@companyName, @orgType)";
-                    cmd.Parameters.AddWithValue("companyName", companyName);
-                    cmd.Parameters.AddWithValue("orgType", orgType);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error inserting data into company table: {ex.Message}");
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO company (company_name, org_type) VALUES (@companyName, @orgType)";
+                cmd.Parameters.AddWithValue("companyName", companyName);
+                cmd.Parameters.AddWithValue("orgType", orgType);
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -135,19 +129,12 @@ namespace SpreadsheetSpelunker
         {
             string railroadName = row["railroad_name"].ToString();
 
-            try
+            using (var cmd = new NpgsqlCommand())
             {
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO railroad (railroad_name) VALUES (@railroadName)";
-                    cmd.Parameters.AddWithValue("railroadName", railroadName);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error inserting data into railroad table: {ex.Message}");
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO railroad (railroad_name) VALUES (@railroadName)";
+                cmd.Parameters.AddWithValue("railroadName", railroadName);
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -157,46 +144,58 @@ namespace SpreadsheetSpelunker
             string trainType = row["train_type"].ToString();
             int railroadId = Convert.ToInt32(row["railroad_id"]);
 
-            try
+            using (var cmd = new NpgsqlCommand())
             {
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO incident_train (name_number, train_type, railroad_id) VALUES (@nameNumber, @trainType, @railroadId)";
-                    cmd.Parameters.AddWithValue("nameNumber", nameNumber);
-                    cmd.Parameters.AddWithValue("trainType", trainType);
-                    cmd.Parameters.AddWithValue("railroadId", railroadId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error inserting data into incident_train table: {ex.Message}");
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO incident_train (name_number, train_type, railroad_id) VALUES (@nameNumber, @trainType, @railroadId)";
+                cmd.Parameters.AddWithValue("nameNumber", nameNumber);
+                cmd.Parameters.AddWithValue("trainType", trainType);
+                cmd.Parameters.AddWithValue("railroadId", railroadId);
+                cmd.ExecuteNonQuery();
             }
         }
 
         private static void InsertIncidentData(NpgsqlConnection conn, DataRow row)
         {
-            // Add all relevant fields from the row
-            string dateTimeReceived = row["date_time_received"].ToString();
-            // And so on for other fields...
+            DateTime dateTimeReceived = row["date_time_received"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(row["date_time_received"]);
+            DateTime? dateTimeComplete = row["date_time_complete"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(row["date_time_complete"]);
+            string callType = row["call_type"]?.ToString() ?? string.Empty;
+            string responsibleCity = row["responsible_city"]?.ToString() ?? string.Empty;
+            string responsibleState = row["responsible_state"]?.ToString() ?? string.Empty;
+            string responsibleZip = row["responsible_zip"]?.ToString() ?? string.Empty;
+            string descriptionOfIncident = row["description_of_incident"]?.ToString() ?? string.Empty;
+            string typeOfIncident = row["type_of_incident"]?.ToString() ?? string.Empty;
+            string incidentCause = row["incident_cause"]?.ToString() ?? string.Empty;
+            int injuryCount = row["injury_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["injury_count"]);
+            int hospitalizationCount = row["hospitalization_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["hospitalization_count"]);
+            int fatalityCount = row["fatality_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["fatality_count"]);
+            int companyId = row["company_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["company_id"]);
+            int railroadId = row["railroad_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["railroad_id"]);
+            int incidentTrainId = row["incident_train_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["incident_train_id"]);
 
-            try
+            using (var cmd = new NpgsqlCommand())
             {
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO incident (date_time_received, /* other fields */) VALUES (@dateTimeReceived, /* other parameters */)";
-                    cmd.Parameters.AddWithValue("dateTimeReceived", dateTimeReceived);
-                    // Add other parameters
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error inserting data into incident table: {ex.Message}");
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO incident (date_time_received, date_time_complete, call_type, responsible_city, responsible_state, responsible_zip, description_of_incident, type_of_incident, incident_cause, injury_count, hospitalization_count, fatality_count, company_id, railroad_id, incident_train_id) VALUES (@dateTimeReceived, @dateTimeComplete, @callType, @responsibleCity, @responsibleState, @responsibleZip, @descriptionOfIncident, @typeOfIncident, @incidentCause, @injuryCount, @hospitalizationCount, @fatalityCount, @companyId, @railroadId, @incidentTrainId)";
+                cmd.Parameters.AddWithValue("dateTimeReceived", dateTimeReceived);
+                cmd.Parameters.AddWithValue("dateTimeComplete", dateTimeComplete ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("callType", callType);
+                cmd.Parameters.AddWithValue("responsibleCity", responsibleCity);
+                cmd.Parameters.AddWithValue("responsibleState", responsibleState);
+                cmd.Parameters.AddWithValue("responsibleZip", responsibleZip);
+                cmd.Parameters.AddWithValue("descriptionOfIncident", descriptionOfIncident);
+                cmd.Parameters.AddWithValue("typeOfIncident", typeOfIncident);
+                cmd.Parameters.AddWithValue("incidentCause", incidentCause);
+                cmd.Parameters.AddWithValue("injuryCount", injuryCount);
+                cmd.Parameters.AddWithValue("hospitalizationCount", hospitalizationCount);
+                cmd.Parameters.AddWithValue("fatalityCount", fatalityCount);
+                cmd.Parameters.AddWithValue("companyId", companyId);
+                cmd.Parameters.AddWithValue("railroadId", railroadId);
+                cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
+                cmd.ExecuteNonQuery();
             }
         }
+
 
         private static void InsertIncidentTrainCarData(NpgsqlConnection conn, DataRow row)
         {
@@ -206,23 +205,16 @@ namespace SpreadsheetSpelunker
             string carType = row["car_type"].ToString();
             int incidentTrainId = Convert.ToInt32(row["incident_train_id"]);
 
-            try
+            using (var cmd = new NpgsqlCommand())
             {
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO incident_train_car (car_number, car_content, position_in_train, car_type, incident_train_id) VALUES (@carNumber, @carContent, @positionInTrain, @carType, @incidentTrainId)";
-                    cmd.Parameters.AddWithValue("carNumber", carNumber);
-                    cmd.Parameters.AddWithValue("carContent", carContent);
-                    cmd.Parameters.AddWithValue("positionInTrain", positionInTrain);
-                    cmd.Parameters.AddWithValue("carType", carType);
-                    cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error inserting data into incident_train_car table: {ex.Message}");
+                cmd.Connection = conn;
+                cmd.CommandText = "INSERT INTO incident_train_car (car_number, car_content, position_in_train, car_type, incident_train_id) VALUES (@carNumber, @carContent, @positionInTrain, @carType, @incidentTrainId)";
+                cmd.Parameters.AddWithValue("carNumber", carNumber);
+                cmd.Parameters.AddWithValue("carContent", carContent);
+                cmd.Parameters.AddWithValue("positionInTrain", positionInTrain);
+                cmd.Parameters.AddWithValue("carType", carType);
+                cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
+                cmd.ExecuteNonQuery();
             }
         }
     }
