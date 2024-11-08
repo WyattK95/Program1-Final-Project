@@ -1,222 +1,262 @@
-﻿using Npgsql;
-using System;
-using System.IO;
+﻿using System;
 using System.Data;
-using ExcelDataReader;
-using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading.Tasks;
+using Npgsql;
+using OfficeOpenXml;
 
-namespace SpreadsheetSpelunker
+public class Program
 {
-    internal class Program
+    // Entry point for the application
+    public static async Task Main(string[] args)
     {
-        private static readonly ILogger<Program> _logger;
+        // Path to your Excel file
+        string excelFilePath = "path_to_your_excel_file.xlsx"; // Replace with actual file path
+        
+        // Create and populate the DataSet by reading the Excel file
+        var data = await ReadExcelFileAsync(excelFilePath);
 
-        static Program()
+        // Call the method to insert data into the database
+        await DatabaseHelper.InsertDataIntoDatabaseAsync(data);
+    }
+
+    // Method to read data from Excel file and populate DataSet
+    public static async Task<DataSet> ReadExcelFileAsync(string filePath)
+    {
+        var dataSet = new DataSet();
+
+        // Load the Excel file using EPPlus
+        using (var package = new ExcelPackage(new FileInfo(filePath)))
         {
-            using var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddConsole();
-                builder.AddDebug();
-            });
+            var worksheet = package.Workbook.Worksheets[0]; // Get first worksheet
+            int rowCount = worksheet.Dimension.Rows;
+            int colCount = worksheet.Dimension.Columns;
 
-            _logger = loggerFactory.CreateLogger<Program>();
-        }
-
-        static void Main(string[] args)
-        {
-            string filePathForThis = args.Length > 0 ? args[0] : "../CY22.xlsx";
-            var data = ParseTheFile(filePathForThis);
-            if (data != null)
+            // Create DataTables for each sheet (can be customized if you have multiple sheets)
+            var table = new DataTable("company"); // Example for one sheet
+            for (int col = 1; col <= colCount; col++)
             {
-                InsertDataIntoDatabase(data);
+                table.Columns.Add(worksheet.Cells[1, col].Text); // First row as column names
             }
-            else
-            {
-                _logger.LogError("Failed to parse the file.");
-            }
-        }
 
-        private static DataSet? ParseTheFile(string filePathForThis)
-        {
-            try
+            // Add rows to DataTable
+            for (int row = 2; row <= rowCount; row++) // Start from row 2 (ignoring header row)
             {
-                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-                using (var stream = File.Open(filePathForThis, FileMode.Open, FileAccess.Read))
+                var newRow = table.NewRow();
+                for (int col = 1; col <= colCount; col++)
                 {
-                    using (var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream))
-                    {
-                        var result = reader.AsDataSet();
-                        return result;
-                    }
+                    newRow[col - 1] = worksheet.Cells[row, col].Text; // Add cell data
                 }
+                table.Rows.Add(newRow);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An error occurred while parsing the file: {ex.Message}");
-                return null;
-            }
+
+            dataSet.Tables.Add(table); // Add the DataTable to the DataSet
         }
 
-        private static void InsertDataIntoDatabase(DataSet data)
-        {
-            string connString = "Host=db-2024-bruhigita3932.cnsalab.net;Username=bruhigita3932;Password=yNIIwNNBO7MW4O7cUhzK;Database=NC_Database";
+        return dataSet;
+    }
+}
 
-            using (var conn = new NpgsqlConnection(connString))
+public class DatabaseHelper
+{
+    // Define the connection string to the PostgreSQL database
+    private static readonly string connString = "Host=db-2024-bruhigita3932.cnsalab.net;Username=bruhigita3932;Password=yNIIwNNBO7MW4O7cUhzK;Database=NC_Database";
+
+    // Asynchronous method to insert data into the database and query the inserted data
+    public static async Task InsertDataIntoDatabaseAsync(DataSet data)
+    {
+        // Set of valid table names to process
+        var validTables = new HashSet<string> { "company", "railroad", "incident_train", "incident", "incident_train_car" };
+
+        // Open the connection to the database
+        await using var conn = new NpgsqlConnection(connString);
+        try
+        {
+            // Try to establish a connection to the database asynchronously
+            await conn.OpenAsync();
+            Console.WriteLine("Connection established successfully!");
+
+            // Iterate through each DataTable in the DataSet
+            foreach (DataTable table in data.Tables)
             {
-                try
+                // Skip tables that are not in the valid list
+                if (!validTables.Contains(table.TableName))
                 {
-                    conn.Open();
-                    foreach (DataTable table in data.Tables)
+                    Console.WriteLine($"Skipping table: {table.TableName}");
+                    continue; // Skip this table and continue to the next
+                }
+
+                // Iterate through each row of the current table
+                foreach (DataRow row in table.Rows)
+                {
+                    try
                     {
-                        foreach (DataRow row in table.Rows)
+                        // Depending on the table name, call the appropriate insert method
+                        switch (table.TableName)
                         {
-                            try
-                            {
-                                switch (table.TableName)
-                                {
-                                    case "company":
-                                        InsertCompanyData(conn, row);
-                                        break;
-                                    case "railroad":
-                                        InsertRailroadData(conn, row);
-                                        break;
-                                    case "incident_train":
-                                        InsertIncidentTrainData(conn, row);
-                                        break;
-                                    case "incident":
-                                        InsertIncidentData(conn, row);
-                                        break;
-                                    case "incident_train_car":
-                                        InsertIncidentTrainCarData(conn, row);
-                                        break;
-                                    default:
-                                        // Log a warning for unknown tables
-                                        _logger.LogWarning($"Unknown table name: {table.TableName}");
-                                        break;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError($"Error inserting data into {table.TableName}: {ex.Message}");
-                            }
+                            case "company":
+                                await InsertCompanyDataAsync(conn, row);
+                                break;
+                            case "railroad":
+                                await InsertRailroadDataAsync(conn, row);
+                                break;
+                            case "incident_train":
+                                await InsertIncidentTrainDataAsync(conn, row);
+                                break;
+                            case "incident":
+                                await InsertIncidentDataAsync(conn, row);
+                                break;
+                            case "incident_train_car":
+                                await InsertIncidentTrainCarDataAsync(conn, row);
+                                break;
+                            default:
+                                Console.WriteLine($"Unknown table name: {table.TableName}");
+                                break;
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        // Handle any errors during the insert operation for a row
+                        Console.WriteLine($"Error inserting data into {table.TableName}: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Database connection error: {ex.Message}");
-                }
             }
+
+            // After inserting the data, query and print the inserted data from all tables
+            await QueryAndPrintInsertedData(conn);
         }
-
-
-        private static void InsertCompanyData(NpgsqlConnection conn, DataRow row)
+        catch (Exception ex)
         {
-            string companyName = row["company_name"].ToString();
-            string orgType = row["org_type"].ToString();
-
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO company (company_name, org_type) VALUES (@companyName, @orgType)";
-                cmd.Parameters.AddWithValue("companyName", companyName);
-                cmd.Parameters.AddWithValue("orgType", orgType);
-                cmd.ExecuteNonQuery();
-            }
+            // Handle any database connection errors
+            Console.WriteLine($"Database connection error: {ex.Message}");
         }
+    }
 
-        private static void InsertRailroadData(NpgsqlConnection conn, DataRow row)
+    // Method to insert data into the 'company' table
+    private static async Task InsertCompanyDataAsync(NpgsqlConnection conn, DataRow row)
+    {
+        // SQL query to insert data into the company table
+        var query = "INSERT INTO company (company_name, org_type) VALUES (@company_name, @org_type)";
+        
+        // Create a command to execute the query on the database connection
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Add parameters to the command to prevent SQL injection
+        cmd.Parameters.AddWithValue("company_name", row["company_name"]);
+        cmd.Parameters.AddWithValue("org_type", row["org_type"]);
+        
+        // Execute the query asynchronously
+        await cmd.ExecuteNonQueryAsync();
+        // Output the inserted data to the console
+        Console.WriteLine($"Inserted into company: {row["company_name"]}, {row["org_type"]}");
+    }
+
+    // Method to insert data into the 'railroad' table
+    private static async Task InsertRailroadDataAsync(NpgsqlConnection conn, DataRow row)
+    {
+        // SQL query to insert data into the railroad table
+        var query = "INSERT INTO railroad (railroad_name) VALUES (@railroad_name)";
+        
+        // Create a command to execute the query
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Add the railroad name as a parameter
+        cmd.Parameters.AddWithValue("railroad_name", row["railroad_name"]);
+        
+        // Execute the query asynchronously
+        await cmd.ExecuteNonQueryAsync();
+        // Output the inserted data to the console
+        Console.WriteLine($"Inserted into railroad: {row["railroad_name"]}");
+    }
+
+    // Method to insert data into the 'incident_train' table
+    private static async Task InsertIncidentTrainDataAsync(NpgsqlConnection conn, DataRow row)
+    {
+        // SQL query to insert data into the incident_train table
+        var query = "INSERT INTO incident_train (name_number, train_type, railroad_id) VALUES (@name_number, @train_type, @railroad_id)";
+        
+        // Create a command to execute the query
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Add parameters for each column in the table
+        cmd.Parameters.AddWithValue("name_number", row["name_number"]);
+        cmd.Parameters.AddWithValue("train_type", row["train_type"]);
+        cmd.Parameters.AddWithValue("railroad_id", row["railroad_id"]);
+        
+        // Execute the query asynchronously
+        await cmd.ExecuteNonQueryAsync();
+        // Output the inserted data to the console
+        Console.WriteLine($"Inserted into incident_train: {row["name_number"]}, {row["train_type"]}");
+    }
+
+    // Method to insert data into the 'incident' table
+    private static async Task InsertIncidentDataAsync(NpgsqlConnection conn, DataRow row)
+    {
+        // SQL query to insert data into the incident table
+        var query = @"INSERT INTO incident (date_time_received, date_time_complete, call_type, responsible_city, responsible_state, responsible_zip, 
+                          description_of_incident, type_of_incident, incident_cause, injury_count, hospitalization_count, fatality_count, 
+                          company_id, railroad_id, incident_train_id)
+                      VALUES (@date_time_received, @date_time_complete, @call_type, @responsible_city, @responsible_state, @responsible_zip, 
+                              @description_of_incident, @type_of_incident, @incident_cause, @injury_count, @hospitalization_count, @fatality_count, 
+                              @company_id, @railroad_id, @incident_train_id)";
+        
+        // Create a command to execute the query
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Add parameters for each column in the table
+        cmd.Parameters.AddWithValue("date_time_received", row["date_time_received"]);
+        cmd.Parameters.AddWithValue("date_time_complete", row["date_time_complete"]);
+        cmd.Parameters.AddWithValue("call_type", row["call_type"]);
+        cmd.Parameters.AddWithValue("responsible_city", row["responsible_city"]);
+        cmd.Parameters.AddWithValue("responsible_state", row["responsible_state"]);
+        cmd.Parameters.AddWithValue("responsible_zip", row["responsible_zip"]);
+        cmd.Parameters.AddWithValue("description_of_incident", row["description_of_incident"]);
+        cmd.Parameters.AddWithValue("type_of_incident", row["type_of_incident"]);
+        cmd.Parameters.AddWithValue("incident_cause", row["incident_cause"]);
+        cmd.Parameters.AddWithValue("injury_count", row["injury_count"]);
+        cmd.Parameters.AddWithValue("hospitalization_count", row["hospitalization_count"]);
+        cmd.Parameters.AddWithValue("fatality_count", row["fatality_count"]);
+        cmd.Parameters.AddWithValue("company_id", row["company_id"]);
+        cmd.Parameters.AddWithValue("railroad_id", row["railroad_id"]);
+        cmd.Parameters.AddWithValue("incident_train_id", row["incident_train_id"]);
+        
+        // Execute the query asynchronously
+        await cmd.ExecuteNonQueryAsync();
+        // Output the inserted data to the console
+        Console.WriteLine($"Inserted into incident: {row["call_type"]}");
+    }
+
+    // Method to insert data into the 'incident_train_car' table
+    private static async Task InsertIncidentTrainCarDataAsync(NpgsqlConnection conn, DataRow row)
+    {
+        // SQL query to insert data into the incident_train_car table
+        var query = @"INSERT INTO incident_train_car (incident_id, train_car_type, number_of_train_cars_involved)
+                      VALUES (@incident_id, @train_car_type, @number_of_train_cars_involved)";
+        
+        // Create a command to execute the query
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Add parameters for each column in the table
+        cmd.Parameters.AddWithValue("incident_id", row["incident_id"]);
+        cmd.Parameters.AddWithValue("train_car_type", row["train_car_type"]);
+        cmd.Parameters.AddWithValue("number_of_train_cars_involved", row["number_of_train_cars_involved"]);
+        
+        // Execute the query asynchronously
+        await cmd.ExecuteNonQueryAsync();
+        // Output the inserted data to the console
+        Console.WriteLine($"Inserted into incident_train_car: {row["train_car_type"]}");
+    }
+
+    // Method to query and print the inserted data from the database
+    private static async Task QueryAndPrintInsertedData(NpgsqlConnection conn)
+    {
+        // Example to print data from all tables (modify queries as per your needs)
+        var query = "SELECT * FROM company"; // Adjust this for other tables as needed
+        
+        // Create a command to execute the query
+        await using var cmd = new NpgsqlCommand(query, conn);
+        // Execute the query and get the data
+        await using var reader = await cmd.ExecuteReaderAsync();
+        
+        // Print the results to the console
+        while (await reader.ReadAsync())
         {
-            string railroadName = row["railroad_name"].ToString();
-
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO railroad (railroad_name) VALUES (@railroadName)";
-                cmd.Parameters.AddWithValue("railroadName", railroadName);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        private static void InsertIncidentTrainData(NpgsqlConnection conn, DataRow row)
-        {
-            string nameNumber = row["name_number"].ToString();
-            string trainType = row["train_type"].ToString();
-            int railroadId = Convert.ToInt32(row["railroad_id"]);
-
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO incident_train (name_number, train_type, railroad_id) VALUES (@nameNumber, @trainType, @railroadId)";
-                cmd.Parameters.AddWithValue("nameNumber", nameNumber);
-                cmd.Parameters.AddWithValue("trainType", trainType);
-                cmd.Parameters.AddWithValue("railroadId", railroadId);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        private static void InsertIncidentData(NpgsqlConnection conn, DataRow row)
-        {
-            DateTime dateTimeReceived = row["date_time_received"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(row["date_time_received"]);
-            DateTime? dateTimeComplete = row["date_time_complete"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(row["date_time_complete"]);
-            string callType = row["call_type"]?.ToString() ?? string.Empty;
-            string responsibleCity = row["responsible_city"]?.ToString() ?? string.Empty;
-            string responsibleState = row["responsible_state"]?.ToString() ?? string.Empty;
-            string responsibleZip = row["responsible_zip"]?.ToString() ?? string.Empty;
-            string descriptionOfIncident = row["description_of_incident"]?.ToString() ?? string.Empty;
-            string typeOfIncident = row["type_of_incident"]?.ToString() ?? string.Empty;
-            string incidentCause = row["incident_cause"]?.ToString() ?? string.Empty;
-            int injuryCount = row["injury_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["injury_count"]);
-            int hospitalizationCount = row["hospitalization_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["hospitalization_count"]);
-            int fatalityCount = row["fatality_count"] == DBNull.Value ? 0 : Convert.ToInt32(row["fatality_count"]);
-            int companyId = row["company_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["company_id"]);
-            int railroadId = row["railroad_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["railroad_id"]);
-            int incidentTrainId = row["incident_train_id"] == DBNull.Value ? 0 : Convert.ToInt32(row["incident_train_id"]);
-
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO incident (date_time_received, date_time_complete, call_type, responsible_city, responsible_state, responsible_zip, description_of_incident, type_of_incident, incident_cause, injury_count, hospitalization_count, fatality_count, company_id, railroad_id, incident_train_id) VALUES (@dateTimeReceived, @dateTimeComplete, @callType, @responsibleCity, @responsibleState, @responsibleZip, @descriptionOfIncident, @typeOfIncident, @incidentCause, @injuryCount, @hospitalizationCount, @fatalityCount, @companyId, @railroadId, @incidentTrainId)";
-                cmd.Parameters.AddWithValue("dateTimeReceived", dateTimeReceived);
-                cmd.Parameters.AddWithValue("dateTimeComplete", dateTimeComplete ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("callType", callType);
-                cmd.Parameters.AddWithValue("responsibleCity", responsibleCity);
-                cmd.Parameters.AddWithValue("responsibleState", responsibleState);
-                cmd.Parameters.AddWithValue("responsibleZip", responsibleZip);
-                cmd.Parameters.AddWithValue("descriptionOfIncident", descriptionOfIncident);
-                cmd.Parameters.AddWithValue("typeOfIncident", typeOfIncident);
-                cmd.Parameters.AddWithValue("incidentCause", incidentCause);
-                cmd.Parameters.AddWithValue("injuryCount", injuryCount);
-                cmd.Parameters.AddWithValue("hospitalizationCount", hospitalizationCount);
-                cmd.Parameters.AddWithValue("fatalityCount", fatalityCount);
-                cmd.Parameters.AddWithValue("companyId", companyId);
-                cmd.Parameters.AddWithValue("railroadId", railroadId);
-                cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-
-        private static void InsertIncidentTrainCarData(NpgsqlConnection conn, DataRow row)
-        {
-            string carNumber = row["car_number"].ToString();
-            string carContent = row["car_content"].ToString();
-            int positionInTrain = Convert.ToInt32(row["position_in_train"]);
-            string carType = row["car_type"].ToString();
-            int incidentTrainId = Convert.ToInt32(row["incident_train_id"]);
-
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO incident_train_car (car_number, car_content, position_in_train, car_type, incident_train_id) VALUES (@carNumber, @carContent, @positionInTrain, @carType, @incidentTrainId)";
-                cmd.Parameters.AddWithValue("carNumber", carNumber);
-                cmd.Parameters.AddWithValue("carContent", carContent);
-                cmd.Parameters.AddWithValue("positionInTrain", positionInTrain);
-                cmd.Parameters.AddWithValue("carType", carType);
-                cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
-                cmd.ExecuteNonQuery();
-            }
+            Console.WriteLine($"Company: {reader["company_name"]}, {reader["org_type"]}");
         }
     }
 }
