@@ -1,13 +1,27 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
+﻿using Npgsql;
+using System;
 using System.IO;
+using System.Data;
 using ExcelDataReader;
+using Microsoft.Extensions.Logging;
 
 namespace SpreadsheetSpelunker
 {
     internal class Program
     {
+        private static readonly ILogger<Program> _logger;
+
+        static Program()
+        {
+            using var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+                builder.AddDebug();
+            });
+
+            _logger = loggerFactory.CreateLogger<Program>();
+        }
+
         static void Main(string[] args)
         {
             string filePathForThis = args.Length > 0 ? args[0] : "../CY22.xlsx";
@@ -18,11 +32,11 @@ namespace SpreadsheetSpelunker
             }
             else
             {
-                Console.WriteLine("No data to insert.");
+                _logger.LogError("Failed to parse the file.");
             }
         }
 
-        private static DataSet ParseTheFile(string filePathForThis)
+        private static DataSet? ParseTheFile(string filePathForThis = "../CY22.xlsx")
         {
             try
             {
@@ -39,85 +53,176 @@ namespace SpreadsheetSpelunker
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while reading the file: {ex.Message}");
+                _logger.LogError($"An error occurred while parsing the file: {ex.Message}");
                 return null;
             }
         }
 
         private static void InsertDataIntoDatabase(DataSet data)
         {
-            string connString = "Server=REDOSKIC;Database=NC_TestServer;User Id=UserConsole;Password=CNSAcnsa1;";
+            string connString = "Host=db-2024-bruhigita3932.cnsalab.net;Username=bruhigita3932;Password=yNIIwNNBO7MW4O7cUhzK;Database=NC_Database";
 
-
-            try
+            using (var conn = new NpgsqlConnection(connString))
             {
-                using (var conn = new SqlConnection(connString))
+                try
                 {
                     conn.Open();
                     foreach (DataTable table in data.Tables)
                     {
-                        if (table.TableName == "Company")
+                        foreach (DataRow row in table.Rows)
                         {
-                            InsertCompanyData(conn, table);
+                            try
+                            {
+                                switch (table.TableName)
+                                {
+                                    case "company":
+                                        InsertCompanyData(conn, row);
+                                        break;
+                                    case "railroad":
+                                        InsertRailroadData(conn, row);
+                                        break;
+                                    case "incident_train":
+                                        InsertIncidentTrainData(conn, row);
+                                        break;
+                                    case "incident":
+                                        InsertIncidentData(conn, row);
+                                        break;
+                                    case "incident_train_car":
+                                        InsertIncidentTrainCarData(conn, row);
+                                        break;
+                                    default:
+                                        _logger.LogWarning($"Unknown table name: {table.TableName}");
+                                        break;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"Error inserting data into {table.TableName}: {ex.Message}");
+                            }
                         }
-                        else if (table.TableName == "Railroad")
-                        {
-                            InsertRailroadData(conn, table);
-                        }
-                        else if (table.TableName == "Incident")
-                        {
-                            InsertIncidentData(conn, table);
-                        }
-                        else if (table.TableName == "incident_train_car")
-                        {
-                            InsertIncidentData(conn, table);
-                        }
-                        // Add additional else-if blocks for other tables here
                     }
                 }
-                Console.WriteLine("Data inserted successfully.");
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Database connection error: {ex.Message}");
+                }
+            }
+        }
+
+        private static void InsertCompanyData(NpgsqlConnection conn, DataRow row)
+        {
+            string companyName = row["company_name"].ToString();
+            string orgType = row["org_type"].ToString();
+
+            try
+            {
+                using (var cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "INSERT INTO company (company_name, org_type) VALUES (@companyName, @orgType)";
+                    cmd.Parameters.AddWithValue("companyName", companyName);
+                    cmd.Parameters.AddWithValue("orgType", orgType);
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while inserting data: {ex.Message}");
+                _logger.LogError($"Error inserting data into company table: {ex.Message}");
             }
         }
 
-        private static void InsertCompanyData(SqlConnection conn, DataTable table)
+        private static void InsertRailroadData(NpgsqlConnection conn, DataRow row)
         {
-            foreach (DataRow row in table.Rows)
+            string railroadName = row["railroad_name"].ToString();
+
+            try
             {
-                using (var cmd = new SqlCommand("INSERT INTO company (company_name, org_type) VALUES (@companyName, @orgType)", conn))
+                using (var cmd = new NpgsqlCommand())
                 {
-                    cmd.Parameters.AddWithValue("@companyName", row["company_name"].ToString());
-                    cmd.Parameters.AddWithValue("@orgType", row["org_type"].ToString());
+                    cmd.Connection = conn;
+                    cmd.CommandText = "INSERT INTO railroad (railroad_name) VALUES (@railroadName)";
+                    cmd.Parameters.AddWithValue("railroadName", railroadName);
                     cmd.ExecuteNonQuery();
                 }
             }
-        }
-
-        private static void InsertRailroadData(SqlConnection conn, DataTable table)
-        {
-            foreach (DataRow row in table.Rows)
+            catch (Exception ex)
             {
-                using (var cmd = new SqlCommand("INSERT INTO railroad (railroad_name) VALUES (@railroadName)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@railroadName", row["railroad_name"].ToString());
-                    cmd.ExecuteNonQuery();
-                }
+                _logger.LogError($"Error inserting data into railroad table: {ex.Message}");
             }
         }
 
-        private static void InsertIncidentData(SqlConnection conn, DataTable table)
+        private static void InsertIncidentTrainData(NpgsqlConnection conn, DataRow row)
         {
-            foreach (DataRow row in table.Rows)
+            string nameNumber = row["name_number"].ToString();
+            string trainType = row["train_type"].ToString();
+            int railroadId = Convert.ToInt32(row["railroad_id"]);
+
+            try
             {
-                using (var cmd = new SqlCommand("INSERT INTO incident (date_time_received, call_type) VALUES (@dateTimeReceived, @callType)", conn))
+                using (var cmd = new NpgsqlCommand())
                 {
-                    cmd.Parameters.AddWithValue("@dateTimeReceived", DateTime.Parse(row["date_time_received"].ToString()));
-                    cmd.Parameters.AddWithValue("@callType", row["call_type"].ToString());
+                    cmd.Connection = conn;
+                    cmd.CommandText = "INSERT INTO incident_train (name_number, train_type, railroad_id) VALUES (@nameNumber, @trainType, @railroadId)";
+                    cmd.Parameters.AddWithValue("nameNumber", nameNumber);
+                    cmd.Parameters.AddWithValue("trainType", trainType);
+                    cmd.Parameters.AddWithValue("railroadId", railroadId);
                     cmd.ExecuteNonQuery();
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error inserting data into incident_train table: {ex.Message}");
+            }
+        }
+
+        private static void InsertIncidentData(NpgsqlConnection conn, DataRow row)
+        {
+            // Add all relevant fields from the row
+            string dateTimeReceived = row["date_time_received"].ToString();
+            // And so on for other fields...
+
+            try
+            {
+                using (var cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "INSERT INTO incident (date_time_received, /* other fields */) VALUES (@dateTimeReceived, /* other parameters */)";
+                    cmd.Parameters.AddWithValue("dateTimeReceived", dateTimeReceived);
+                    // Add other parameters
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error inserting data into incident table: {ex.Message}");
+            }
+        }
+
+        private static void InsertIncidentTrainCarData(NpgsqlConnection conn, DataRow row)
+        {
+            string carNumber = row["car_number"].ToString();
+            string carContent = row["car_content"].ToString();
+            int positionInTrain = Convert.ToInt32(row["position_in_train"]);
+            string carType = row["car_type"].ToString();
+            int incidentTrainId = Convert.ToInt32(row["incident_train_id"]);
+
+            try
+            {
+                using (var cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "INSERT INTO incident_train_car (car_number, car_content, position_in_train, car_type, incident_train_id) VALUES (@carNumber, @carContent, @positionInTrain, @carType, @incidentTrainId)";
+                    cmd.Parameters.AddWithValue("carNumber", carNumber);
+                    cmd.Parameters.AddWithValue("carContent", carContent);
+                    cmd.Parameters.AddWithValue("positionInTrain", positionInTrain);
+                    cmd.Parameters.AddWithValue("carType", carType);
+                    cmd.Parameters.AddWithValue("incidentTrainId", incidentTrainId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error inserting data into incident_train_car table: {ex.Message}");
             }
         }
     }
