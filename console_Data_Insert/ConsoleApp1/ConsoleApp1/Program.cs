@@ -89,10 +89,10 @@ namespace SpreadsheetSpelunker
                                         break;
                                     case "incident_train_car":
                                         InsertIncidentTrainCarData(conn, row);
-                                        break;                                
+                                        break;
                                     default:
-                                        // Skip unrecognized table silently
-                                       // _logger.LogWarning($"Unknown table name: {table.TableName}");
+                                        // Log a warning for unknown tables
+                                        _logger.LogWarning($"Unknown table name: {table.TableName}");
                                         break;
                                 }
                             }
@@ -109,6 +109,7 @@ namespace SpreadsheetSpelunker
                 }
             }
         }
+
 
         private static void InsertCompanyData(NpgsqlConnection conn, DataRow row)
         {
