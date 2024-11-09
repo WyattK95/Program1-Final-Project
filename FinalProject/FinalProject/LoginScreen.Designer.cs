@@ -35,7 +35,9 @@
             loginButton = new Button();
             titleLabel = new Label();
             roundedPanel = new Panel();
+            regformButton = new Button();
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            roundedPanel.SuspendLayout();
             SuspendLayout();
             // 
             // passwordLabel
@@ -43,10 +45,10 @@
             passwordLabel.AutoSize = true;
             passwordLabel.BackColor = Color.White;
             passwordLabel.Font = new Font("Century Schoolbook", 12F);
-            passwordLabel.Location = new Point(300, 186);
-            passwordLabel.Margin = new Padding(4, 0, 4, 0);
+            passwordLabel.Location = new Point(89, 282);
+            passwordLabel.Margin = new Padding(6, 0, 6, 0);
             passwordLabel.Name = "passwordLabel";
-            passwordLabel.Size = new Size(78, 20);
+            passwordLabel.Size = new Size(119, 28);
             passwordLabel.TabIndex = 0;
             passwordLabel.Text = "Password";
             // 
@@ -55,10 +57,10 @@
             usernameLabel.AutoSize = true;
             usernameLabel.BackColor = Color.White;
             usernameLabel.Font = new Font("Century Schoolbook", 12F);
-            usernameLabel.Location = new Point(300, 126);
-            usernameLabel.Margin = new Padding(4, 0, 4, 0);
+            usernameLabel.Location = new Point(89, 182);
+            usernameLabel.Margin = new Padding(6, 0, 6, 0);
             usernameLabel.Name = "usernameLabel";
-            usernameLabel.Size = new Size(85, 20);
+            usernameLabel.Size = new Size(127, 28);
             usernameLabel.TabIndex = 1;
             usernameLabel.Text = "Username";
             // 
@@ -66,21 +68,20 @@
             // 
             usernameTextBox.Anchor = AnchorStyles.None;
             usernameTextBox.ForeColor = Color.DarkSalmon;
-            usernameTextBox.Location = new Point(300, 150);
-            usernameTextBox.Margin = new Padding(4, 3, 4, 3);
+            usernameTextBox.Location = new Point(401, 250);
+            usernameTextBox.Margin = new Padding(6, 5, 6, 5);
             usernameTextBox.Name = "usernameTextBox";
-            usernameTextBox.Size = new Size(200, 23);
+            usernameTextBox.Size = new Size(333, 31);
             usernameTextBox.TabIndex = 2;
-            usernameTextBox.TextChanged += usernameTextBox_TextChanged;
             // 
             // passwordTextBox
             // 
             passwordTextBox.ForeColor = Color.DarkSalmon;
-            passwordTextBox.Location = new Point(300, 210);
-            passwordTextBox.Margin = new Padding(4, 3, 4, 3);
+            passwordTextBox.Location = new Point(401, 350);
+            passwordTextBox.Margin = new Padding(6, 5, 6, 5);
             passwordTextBox.Name = "passwordTextBox";
             passwordTextBox.PasswordChar = '*';
-            passwordTextBox.Size = new Size(200, 23);
+            passwordTextBox.Size = new Size(333, 31);
             passwordTextBox.TabIndex = 3;
             passwordTextBox.UseSystemPasswordChar = true;
             // 
@@ -89,10 +90,10 @@
             loginButton.BackColor = Color.Gainsboro;
             loginButton.Font = new Font("Segoe UI", 20F);
             loginButton.ForeColor = Color.DarkSalmon;
-            loginButton.Location = new Point(300, 297);
-            loginButton.Margin = new Padding(4, 3, 4, 3);
+            loginButton.Location = new Point(429, 495);
+            loginButton.Margin = new Padding(6, 5, 6, 5);
             loginButton.Name = "loginButton";
-            loginButton.Size = new Size(200, 50);
+            loginButton.Size = new Size(286, 83);
             loginButton.TabIndex = 4;
             loginButton.Text = "Login";
             loginButton.UseVisualStyleBackColor = false;
@@ -103,38 +104,58 @@
             titleLabel.AutoSize = true;
             titleLabel.BackColor = Color.White;
             titleLabel.Font = new Font("Century Schoolbook", 30F);
-            titleLabel.Location = new Point(243, 21);
-            titleLabel.Margin = new Padding(4, 0, 4, 0);
+            titleLabel.Location = new Point(53, 15);
+            titleLabel.Margin = new Padding(6, 0, 6, 0);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(328, 47);
+            titleLabel.Size = new Size(442, 71);
             titleLabel.TabIndex = 5;
-            titleLabel.Text = "Database Access";
+            titleLabel.Text = "NRC Database";
             // 
             // roundedPanel
             // 
             roundedPanel.BackColor = Color.White;
-            roundedPanel.BorderStyle = BorderStyle.FixedSingle;
-            roundedPanel.Location = new Point(219, 18);
+            roundedPanel.Controls.Add(titleLabel);
+            roundedPanel.Controls.Add(regformButton);
+            roundedPanel.Controls.Add(usernameLabel);
+            roundedPanel.Controls.Add(passwordLabel);
+            roundedPanel.Location = new Point(313, 30);
+            roundedPanel.Margin = new Padding(4, 5, 4, 5);
             roundedPanel.Name = "roundedPanel";
-            roundedPanel.Size = new Size(375, 374);
+            roundedPanel.Size = new Size(536, 623);
             roundedPanel.TabIndex = 6;
+            // 
+            // regformButton
+            // 
+            regformButton.BackColor = Color.Transparent;
+            regformButton.FlatAppearance.BorderSize = 0;
+            regformButton.FlatStyle = FlatStyle.Flat;
+            regformButton.Font = new Font("Segoe UI", 9F, FontStyle.Underline);
+            regformButton.ForeColor = Color.RoyalBlue;
+            regformButton.Location = new Point(76, 391);
+            regformButton.Margin = new Padding(4, 5, 4, 5);
+            regformButton.Name = "regformButton";
+            regformButton.Size = new Size(360, 38);
+            regformButton.TabIndex = 0;
+            regformButton.Text = "Click here if you do not have an account.";
+            regformButton.UseVisualStyleBackColor = false;
+            regformButton.Click += regformButton_Click;
             // 
             // LoginScreen
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AcceptButton = loginButton;
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DarkSalmon;
-            ClientSize = new Size(799, 450);
-            Controls.Add(titleLabel);
+            ClientSize = new Size(1141, 750);
             Controls.Add(loginButton);
             Controls.Add(passwordTextBox);
             Controls.Add(usernameTextBox);
-            Controls.Add(usernameLabel);
-            Controls.Add(passwordLabel);
             Controls.Add(roundedPanel);
-            Margin = new Padding(4, 3, 4, 3);
+            Margin = new Padding(6, 5, 6, 5);
             Name = "LoginScreen";
             Text = "Database Access Login";
+            roundedPanel.ResumeLayout(false);
+            roundedPanel.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -149,5 +170,6 @@
         private Label titleLabel;
         private Panel roundedPanel;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private Button regformButton;
     }
 }
