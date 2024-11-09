@@ -68,7 +68,7 @@
             // 
             usernameTextBox.Anchor = AnchorStyles.None;
             usernameTextBox.ForeColor = Color.DarkSalmon;
-            usernameTextBox.Location = new Point(401, 250);
+            usernameTextBox.Location = new Point(89, 215);
             usernameTextBox.Margin = new Padding(6, 5, 6, 5);
             usernameTextBox.Name = "usernameTextBox";
             usernameTextBox.Size = new Size(333, 31);
@@ -77,7 +77,7 @@
             // passwordTextBox
             // 
             passwordTextBox.ForeColor = Color.DarkSalmon;
-            passwordTextBox.Location = new Point(401, 350);
+            passwordTextBox.Location = new Point(89, 315);
             passwordTextBox.Margin = new Padding(6, 5, 6, 5);
             passwordTextBox.Name = "passwordTextBox";
             passwordTextBox.PasswordChar = '*';
@@ -90,7 +90,7 @@
             loginButton.BackColor = Color.Gainsboro;
             loginButton.Font = new Font("Segoe UI", 20F);
             loginButton.ForeColor = Color.DarkSalmon;
-            loginButton.Location = new Point(429, 495);
+            loginButton.Location = new Point(105, 449);
             loginButton.Margin = new Padding(6, 5, 6, 5);
             loginButton.Name = "loginButton";
             loginButton.Size = new Size(286, 83);
@@ -114,11 +114,14 @@
             // roundedPanel
             // 
             roundedPanel.BackColor = Color.White;
+            roundedPanel.Controls.Add(loginButton);
             roundedPanel.Controls.Add(titleLabel);
+            roundedPanel.Controls.Add(passwordTextBox);
             roundedPanel.Controls.Add(regformButton);
+            roundedPanel.Controls.Add(usernameTextBox);
             roundedPanel.Controls.Add(usernameLabel);
             roundedPanel.Controls.Add(passwordLabel);
-            roundedPanel.Location = new Point(313, 30);
+            roundedPanel.Location = new Point(34, 14);
             roundedPanel.Margin = new Padding(4, 5, 4, 5);
             roundedPanel.Name = "roundedPanel";
             roundedPanel.Size = new Size(536, 623);
@@ -146,10 +149,7 @@
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DarkSalmon;
-            ClientSize = new Size(1141, 750);
-            Controls.Add(loginButton);
-            Controls.Add(passwordTextBox);
-            Controls.Add(usernameTextBox);
+            ClientSize = new Size(609, 646);
             Controls.Add(roundedPanel);
             Margin = new Padding(6, 5, 6, 5);
             Name = "LoginScreen";
@@ -157,7 +157,6 @@
             roundedPanel.ResumeLayout(false);
             roundedPanel.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
