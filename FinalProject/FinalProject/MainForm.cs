@@ -12,9 +12,19 @@ namespace FinalProject
 {
     public partial class MainForm : Form
     {
+        private IncidentForm IncidentForm;
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        private void incidentLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            this.Hide();
+            IncidentForm = new IncidentForm();
+            IncidentForm.FormClosed += (s, args) => this.Show();
+            IncidentForm.Show();
+
         }
     }
 }
