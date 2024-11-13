@@ -32,6 +32,7 @@
             label1 = new Label();
             label2 = new Label();
             textBox1 = new TextBox();
+            searchButton = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -42,6 +43,7 @@
             dataGridView1.Name = "dataGridView1";
             dataGridView1.Size = new Size(417, 369);
             dataGridView1.TabIndex = 0;
+            dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
             // label1
             // 
@@ -68,12 +70,24 @@
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(229, 23);
             textBox1.TabIndex = 3;
+            textBox1.TextChanged += textBox1_TextChanged;
+            // 
+            // searchButton
+            // 
+            searchButton.Location = new Point(406, 75);
+            searchButton.Name = "searchButton";
+            searchButton.Size = new Size(75, 23);
+            searchButton.TabIndex = 4;
+            searchButton.Text = "Search";
+            searchButton.UseVisualStyleBackColor = true;
+            searchButton.Click += searchButton_Click;
             // 
             // IncidentForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 543);
+            Controls.Add(searchButton);
             Controls.Add(textBox1);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -91,5 +105,6 @@
         private Label label1;
         private Label label2;
         private TextBox textBox1;
+        private Button searchButton;
     }
 }
