@@ -51,46 +51,46 @@
             // 
             incidentLinkLabel.AutoSize = true;
             incidentLinkLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            incidentLinkLabel.Location = new Point(85, 154);
+            incidentLinkLabel.Location = new Point(76, 139);
             incidentLinkLabel.Name = "incidentLinkLabel";
-            incidentLinkLabel.Size = new Size(119, 32);
+            incidentLinkLabel.Size = new Size(267, 32);
             incidentLinkLabel.TabIndex = 7;
             incidentLinkLabel.TabStop = true;
-            incidentLinkLabel.Text = "Incidents";
+            incidentLinkLabel.Text = "View or Add Incidents";
             incidentLinkLabel.LinkClicked += incidentLinkLabel_LinkClicked;
             // 
             // companiesLinkLabel
             // 
             companiesLinkLabel.AutoSize = true;
             companiesLinkLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            companiesLinkLabel.Location = new Point(428, 154);
+            companiesLinkLabel.Location = new Point(394, 139);
             companiesLinkLabel.Name = "companiesLinkLabel";
-            companiesLinkLabel.Size = new Size(140, 32);
+            companiesLinkLabel.Size = new Size(202, 32);
             companiesLinkLabel.TabIndex = 8;
             companiesLinkLabel.TabStop = true;
-            companiesLinkLabel.Text = "Companies";
+            companiesLinkLabel.Text = "View Companies";
             // 
             // railroadLinkLabel
             // 
             railroadLinkLabel.AutoSize = true;
             railroadLinkLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            railroadLinkLabel.Location = new Point(85, 272);
+            railroadLinkLabel.Location = new Point(76, 221);
             railroadLinkLabel.Name = "railroadLinkLabel";
-            railroadLinkLabel.Size = new Size(121, 32);
+            railroadLinkLabel.Size = new Size(183, 32);
             railroadLinkLabel.TabIndex = 9;
             railroadLinkLabel.TabStop = true;
-            railroadLinkLabel.Text = "Railroads";
+            railroadLinkLabel.Text = "View Railroads";
             // 
             // maintenanceLinkLabel
             // 
             maintenanceLinkLabel.AutoSize = true;
-            maintenanceLinkLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            maintenanceLinkLabel.Location = new Point(428, 272);
+            maintenanceLinkLabel.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            maintenanceLinkLabel.Location = new Point(529, 418);
             maintenanceLinkLabel.Name = "maintenanceLinkLabel";
-            maintenanceLinkLabel.Size = new Size(220, 32);
+            maintenanceLinkLabel.Size = new Size(162, 25);
             maintenanceLinkLabel.TabIndex = 10;
             maintenanceLinkLabel.TabStop = true;
-            maintenanceLinkLabel.Text = "User Maintenance";
+            maintenanceLinkLabel.Text = "Change password";
             // 
             // MainForm
             // 
