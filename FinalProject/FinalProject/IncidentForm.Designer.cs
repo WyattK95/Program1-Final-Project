@@ -33,6 +33,7 @@
             label2 = new Label();
             textBox1 = new TextBox();
             searchButton = new Button();
+            AddButton = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -41,7 +42,7 @@
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Location = new Point(12, 109);
             dataGridView1.Name = "dataGridView1";
-            dataGridView1.Size = new Size(417, 369);
+            dataGridView1.Size = new Size(587, 369);
             dataGridView1.TabIndex = 0;
             dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
@@ -82,11 +83,22 @@
             searchButton.UseVisualStyleBackColor = true;
             searchButton.Click += searchButton_Click;
             // 
+            // AddButton
+            // 
+            AddButton.Location = new Point(509, 75);
+            AddButton.Name = "AddButton";
+            AddButton.Size = new Size(76, 23);
+            AddButton.TabIndex = 5;
+            AddButton.Text = "Add";
+            AddButton.UseVisualStyleBackColor = true;
+            AddButton.Click += AddButton_Click;
+            // 
             // IncidentForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 543);
+            Controls.Add(AddButton);
             Controls.Add(searchButton);
             Controls.Add(textBox1);
             Controls.Add(label2);
@@ -106,5 +118,6 @@
         private Label label2;
         private TextBox textBox1;
         private Button searchButton;
+        private Button AddButton;
     }
 }
