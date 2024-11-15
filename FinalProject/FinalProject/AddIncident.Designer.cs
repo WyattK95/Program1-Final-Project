@@ -40,14 +40,11 @@
             InjuryCount = new NumericUpDown();
             hospitalizationCount = new NumericUpDown();
             fatalityCount = new NumericUpDown();
-            railroadId = new NumericUpDown();
-            companyId = new NumericUpDown();
             clearButton = new Button();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
-            label5 = new Label();
             label6 = new Label();
             label7 = new Label();
             label8 = new Label();
@@ -57,11 +54,11 @@
             label12 = new Label();
             label13 = new Label();
             label14 = new Label();
+            companyNameInput = new TextBox();
+            railroadNameInput = new TextBox();
             ((System.ComponentModel.ISupportInitialize)InjuryCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)hospitalizationCount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fatalityCount).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)railroadId).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)companyId).BeginInit();
             SuspendLayout();
             // 
             // InsertButton
@@ -70,8 +67,9 @@
             InsertButton.Name = "InsertButton";
             InsertButton.Size = new Size(100, 30);
             InsertButton.TabIndex = 0;
-            InsertButton.Text = "InsertButton";
+            InsertButton.Text = "Insert Record";
             InsertButton.UseVisualStyleBackColor = true;
+            InsertButton.Click += InsertButton_Click_1;
             // 
             // dataTimeReceived
             // 
@@ -132,7 +130,7 @@
             // 
             // IncidentCase
             // 
-            IncidentCase.Location = new Point(280, 93);
+            IncidentCase.Location = new Point(243, 93);
             IncidentCase.Name = "IncidentCase";
             IncidentCase.Size = new Size(100, 23);
             IncidentCase.TabIndex = 10;
@@ -140,7 +138,7 @@
             // 
             // InjuryCount
             // 
-            InjuryCount.Location = new Point(391, 94);
+            InjuryCount.Location = new Point(353, 93);
             InjuryCount.Name = "InjuryCount";
             InjuryCount.Size = new Size(79, 23);
             InjuryCount.TabIndex = 12;
@@ -148,7 +146,7 @@
             // 
             // hospitalizationCount
             // 
-            hospitalizationCount.Location = new Point(482, 94);
+            hospitalizationCount.Location = new Point(438, 93);
             hospitalizationCount.Name = "hospitalizationCount";
             hospitalizationCount.Size = new Size(122, 23);
             hospitalizationCount.TabIndex = 13;
@@ -156,27 +154,11 @@
             // 
             // fatalityCount
             // 
-            fatalityCount.Location = new Point(778, 94);
+            fatalityCount.Location = new Point(566, 94);
             fatalityCount.Name = "fatalityCount";
             fatalityCount.Size = new Size(81, 23);
             fatalityCount.TabIndex = 14;
             fatalityCount.ValueChanged += fatalityCount_ValueChanged;
-            // 
-            // railroadId
-            // 
-            railroadId.Location = new Point(698, 94);
-            railroadId.Name = "railroadId";
-            railroadId.Size = new Size(63, 23);
-            railroadId.TabIndex = 16;
-            railroadId.ValueChanged += railroadId_ValueChanged;
-            // 
-            // companyId
-            // 
-            companyId.Location = new Point(610, 94);
-            companyId.Name = "companyId";
-            companyId.Size = new Size(78, 23);
-            companyId.TabIndex = 17;
-            companyId.ValueChanged += companyId_ValueChanged;
             // 
             // clearButton
             // 
@@ -184,7 +166,7 @@
             clearButton.Name = "clearButton";
             clearButton.Size = new Size(101, 30);
             clearButton.TabIndex = 18;
-            clearButton.Text = "ClearButton";
+            clearButton.Text = "Clear";
             clearButton.UseVisualStyleBackColor = true;
             clearButton.Click += clearButton_Click;
             // 
@@ -218,25 +200,16 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(778, 75);
+            label4.Location = new Point(566, 75);
             label4.Name = "label4";
             label4.Size = new Size(81, 15);
             label4.TabIndex = 22;
             label4.Text = "Fatality Count";
             // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(674, 329);
-            label5.Name = "label5";
-            label5.Size = new Size(87, 15);
-            label5.TabIndex = 23;
-            label5.Text = "Resposible City";
-            // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(280, 75);
+            label6.Location = new Point(243, 75);
             label6.Name = "label6";
             label6.Size = new Size(78, 15);
             label6.TabIndex = 24;
@@ -281,25 +254,25 @@
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(698, 75);
+            label11.Location = new Point(772, 75);
             label11.Name = "label11";
-            label11.Size = new Size(63, 15);
+            label11.Size = new Size(85, 15);
             label11.TabIndex = 29;
-            label11.Text = "Railroad Id";
+            label11.Text = "Railroad Name";
             // 
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(610, 75);
+            label12.Location = new Point(653, 74);
             label12.Name = "label12";
-            label12.Size = new Size(72, 15);
+            label12.Size = new Size(94, 15);
             label12.TabIndex = 30;
-            label12.Text = "Company Id";
+            label12.Text = "Company Name";
             // 
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(482, 75);
+            label13.Location = new Point(432, 75);
             label13.Name = "label13";
             label13.Size = new Size(122, 15);
             label13.TabIndex = 31;
@@ -308,17 +281,33 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(391, 75);
+            label14.Location = new Point(353, 75);
             label14.Name = "label14";
             label14.Size = new Size(73, 15);
             label14.TabIndex = 32;
             label14.Text = "Injury Count";
+            // 
+            // companyNameInput
+            // 
+            companyNameInput.Location = new Point(657, 92);
+            companyNameInput.Name = "companyNameInput";
+            companyNameInput.Size = new Size(100, 23);
+            companyNameInput.TabIndex = 33;
+            // 
+            // railroadNameInput
+            // 
+            railroadNameInput.Location = new Point(772, 92);
+            railroadNameInput.Name = "railroadNameInput";
+            railroadNameInput.Size = new Size(106, 23);
+            railroadNameInput.TabIndex = 34;
             // 
             // AddIncident
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(944, 450);
+            Controls.Add(railroadNameInput);
+            Controls.Add(companyNameInput);
             Controls.Add(label14);
             Controls.Add(label13);
             Controls.Add(label12);
@@ -328,14 +317,11 @@
             Controls.Add(label8);
             Controls.Add(label7);
             Controls.Add(label6);
-            Controls.Add(label5);
             Controls.Add(label4);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(clearButton);
-            Controls.Add(companyId);
-            Controls.Add(railroadId);
             Controls.Add(fatalityCount);
             Controls.Add(hospitalizationCount);
             Controls.Add(InjuryCount);
@@ -353,8 +339,6 @@
             ((System.ComponentModel.ISupportInitialize)InjuryCount).EndInit();
             ((System.ComponentModel.ISupportInitialize)hospitalizationCount).EndInit();
             ((System.ComponentModel.ISupportInitialize)fatalityCount).EndInit();
-            ((System.ComponentModel.ISupportInitialize)railroadId).EndInit();
-            ((System.ComponentModel.ISupportInitialize)companyId).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -373,14 +357,11 @@
         private NumericUpDown InjuryCount;
         private NumericUpDown hospitalizationCount;
         private NumericUpDown fatalityCount;
-        private NumericUpDown railroadId;
-        private NumericUpDown companyId;
         private Button clearButton;
         private Label label1;
         private Label label2;
         private Label label3;
         private Label label4;
-        private Label label5;
         private Label label6;
         private Label label7;
         private Label label8;
@@ -390,5 +371,7 @@
         private Label label12;
         private Label label13;
         private Label label14;
+        private TextBox companyNameInput;
+        private TextBox railroadNameInput;
     }
 }
