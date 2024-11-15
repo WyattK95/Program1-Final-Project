@@ -39,11 +39,11 @@
             // 
             titleLabel.AutoSize = true;
             titleLabel.BackColor = Color.Transparent;
-            titleLabel.Font = new Font("Century Schoolbook", 30F, FontStyle.Bold | FontStyle.Underline, GraphicsUnit.Point, 0);
+            titleLabel.Font = new Font("Microsoft Sans Serif", 30F, FontStyle.Bold | FontStyle.Underline, GraphicsUnit.Point, 0);
             titleLabel.Location = new Point(34, 47);
             titleLabel.Margin = new Padding(4, 0, 4, 0);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(644, 47);
+            titleLabel.Size = new Size(605, 46);
             titleLabel.TabIndex = 6;
             titleLabel.Text = "Welcome to the NRC Database";
             // 
@@ -69,6 +69,7 @@
             companiesLinkLabel.TabIndex = 8;
             companiesLinkLabel.TabStop = true;
             companiesLinkLabel.Text = "View Companies";
+            companiesLinkLabel.LinkClicked += companiesLinkLabel_LinkClicked;
             // 
             // railroadLinkLabel
             // 
@@ -80,6 +81,7 @@
             railroadLinkLabel.TabIndex = 9;
             railroadLinkLabel.TabStop = true;
             railroadLinkLabel.Text = "View Railroads";
+            railroadLinkLabel.LinkClicked += railroadLinkLabel_LinkClicked;
             // 
             // maintenanceLinkLabel
             // 

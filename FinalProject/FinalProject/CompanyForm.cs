@@ -86,9 +86,9 @@ namespace FinalProject
                 // Get the company_id from the selected row
                 int companyId = (int)dataGridViewCompanies.Rows[e.RowIndex].Cells["CompanyID"].Value;
 
-                // Open the IncidentForm for the selected company
-                IncidentForm incidentForm = new IncidentForm(companyId, "company");
-                incidentForm.ShowDialog();
+                // Open the RailroadincidentForm for the selected company
+                RailroadincidentForm RailroadincidentForm = new RailroadincidentForm(companyId, "company");
+                RailroadincidentForm.ShowDialog();
             }
         }
 

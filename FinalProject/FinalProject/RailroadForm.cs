@@ -77,14 +77,17 @@ namespace FinalProject
 
         private void DataGridViewRailroads_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0) // Ensure a valid row is double-clicked
+            if (e.RowIndex >= 0)
             {
-                // Get the railroad_id from the selected row
+                // Get the railroad_id from the selected row's "RailroadID" column
                 int railroadId = (int)dataGridViewRailroads.Rows[e.RowIndex].Cells["RailroadID"].Value;
 
-                // Open the IncidentForm for the selected railroad
-                IncidentForm incidentForm = new IncidentForm(railroadId, "railroad");
-                incidentForm.ShowDialog();
+                // Create and show the RailroadincidentForm with the selected railroadId and entity type "railroad"
+                using (var railroadincidentForm = new RailroadincidentForm(railroadId, "railroad"))
+                {
+                    // Show the RailroadincidentForm as a modal dialog
+                    railroadincidentForm.ShowDialog();
+                }
             }
         }
 

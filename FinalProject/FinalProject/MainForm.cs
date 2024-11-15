@@ -13,6 +13,7 @@ namespace FinalProject
     public partial class MainForm : Form
     {
         private IncidentForm IncidentForm;
+
         public MainForm()
         {
             InitializeComponent();
@@ -25,6 +26,18 @@ namespace FinalProject
             IncidentForm.FormClosed += (s, args) => this.Show();
             IncidentForm.Show();
 
+        }
+
+        private void companiesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            CompanyForm CompanyForm = new CompanyForm();
+            CompanyForm.ShowDialog();
+        }
+
+        private void railroadLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            RailroadForm RailroadForm = new RailroadForm();
+            RailroadForm.ShowDialog();
         }
     }
 }
