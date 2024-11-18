@@ -77,7 +77,7 @@
             dataTimeReceived.Name = "dataTimeReceived";
             dataTimeReceived.Size = new Size(193, 23);
             dataTimeReceived.TabIndex = 2;
-            dataTimeReceived.ValueChanged += dataTimeReceived_ValueChanged;
+            //dataTimeReceived.ValueChanged += dataTimeReceived_ValueChanged;
             // 
             // dataTimeComplete
             // 
@@ -85,7 +85,7 @@
             dataTimeComplete.Name = "dataTimeComplete";
             dataTimeComplete.Size = new Size(175, 23);
             dataTimeComplete.TabIndex = 3;
-            dataTimeComplete.ValueChanged += dataTimeComplete_ValueChanged;
+            //dataTimeComplete.ValueChanged += dataTimeComplete_ValueChanged;
             // 
             // resposibleCity
             // 
@@ -93,7 +93,7 @@
             resposibleCity.Name = "resposibleCity";
             resposibleCity.Size = new Size(98, 23);
             resposibleCity.TabIndex = 4;
-            resposibleCity.TextChanged += resposibleCity_TextChanged;
+            //resposibleCity.TextChanged += resposibleCity_TextChanged;
             // 
             // resposibleStates
             // 
@@ -101,7 +101,7 @@
             resposibleStates.Name = "resposibleStates";
             resposibleStates.Size = new Size(100, 23);
             resposibleStates.TabIndex = 5;
-            resposibleStates.TextChanged += resposibleStates_TextChanged;
+            //resposibleStates.TextChanged += resposibleStates_TextChanged;
             // 
             // resposibleZip
             // 
@@ -109,7 +109,7 @@
             resposibleZip.Name = "resposibleZip";
             resposibleZip.Size = new Size(100, 23);
             resposibleZip.TabIndex = 6;
-            resposibleZip.TextChanged += resposibleZip_TextChanged;
+            //resposibleZip.TextChanged += resposibleZip_TextChanged;
             // 
             // typeIncident
             // 
@@ -117,7 +117,7 @@
             typeIncident.Name = "typeIncident";
             typeIncident.Size = new Size(77, 23);
             typeIncident.TabIndex = 8;
-            typeIncident.TextChanged += typeIncident_TextChanged;
+            //typeIncident.TextChanged += typeIncident_TextChanged;
             // 
             // descriptionOfIncident
             // 
@@ -126,7 +126,7 @@
             descriptionOfIncident.Size = new Size(114, 83);
             descriptionOfIncident.TabIndex = 9;
             descriptionOfIncident.Text = "";
-            descriptionOfIncident.TextChanged += descriptionOfIncident_TextChanged;
+            //descriptionOfIncident.TextChanged += descriptionOfIncident_TextChanged;
             // 
             // IncidentCase
             // 
@@ -134,7 +134,7 @@
             IncidentCase.Name = "IncidentCase";
             IncidentCase.Size = new Size(100, 23);
             IncidentCase.TabIndex = 10;
-            IncidentCase.TextChanged += IncidentCase_TextChanged;
+            //IncidentCase.TextChanged += IncidentCase_TextChanged;
             // 
             // InjuryCount
             // 
@@ -142,7 +142,7 @@
             InjuryCount.Name = "InjuryCount";
             InjuryCount.Size = new Size(79, 23);
             InjuryCount.TabIndex = 12;
-            InjuryCount.ValueChanged += InjuryCount_ValueChanged;
+            //InjuryCount.ValueChanged += InjuryCount_ValueChanged;
             // 
             // hospitalizationCount
             // 
@@ -150,7 +150,7 @@
             hospitalizationCount.Name = "hospitalizationCount";
             hospitalizationCount.Size = new Size(122, 23);
             hospitalizationCount.TabIndex = 13;
-            hospitalizationCount.ValueChanged += hospitalizationCount_ValueChanged;
+            //hospitalizationCount.ValueChanged += hospitalizationCount_ValueChanged;
             // 
             // fatalityCount
             // 
@@ -158,7 +158,7 @@
             fatalityCount.Name = "fatalityCount";
             fatalityCount.Size = new Size(81, 23);
             fatalityCount.TabIndex = 14;
-            fatalityCount.ValueChanged += fatalityCount_ValueChanged;
+            //fatalityCount.ValueChanged += fatalityCount_ValueChanged;
             // 
             // clearButton
             // 

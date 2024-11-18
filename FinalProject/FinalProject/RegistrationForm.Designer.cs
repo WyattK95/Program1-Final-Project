@@ -86,7 +86,6 @@
             usernameTextBox.Name = "usernameTextBox";
             usernameTextBox.Size = new Size(200, 23);
             usernameTextBox.TabIndex = 9;
-            usernameTextBox.TextChanged += usernameTextBox_TextChanged;
             // 
             // usernameLabel
             // 
@@ -128,7 +127,6 @@
             windowPanel.Name = "windowPanel";
             windowPanel.Size = new Size(375, 374);
             windowPanel.TabIndex = 13;
-            windowPanel.Paint += roundedPanel_Paint;
             // 
             // confirmPasswordLabel
             // 

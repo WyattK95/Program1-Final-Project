@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
-using Microsoft.Extensions.Configuration;
 
 namespace FinalProject
 {
     public partial class RailroadForm : Form
     {
-        private readonly string _connectionString;
-
         public RailroadForm()
         {
             InitializeComponent();
-
-            // Initialize connection string
-            _connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
 
             // Set AutoGenerateColumns to false to manually define columns
             dataGridViewRailroads.AutoGenerateColumns = false;
@@ -24,24 +17,21 @@ namespace FinalProject
             dataGridViewRailroads.Columns.Add(new DataGridViewTextBoxColumn()
             {
                 Name = "RailroadID",
-                DataPropertyName = "railroad_id", // Assuming column in your database is railroad_id
+                DataPropertyName = "railroad_id", 
                 HeaderText = "Railroad ID",
-                
             });
             dataGridViewRailroads.Columns.Add(new DataGridViewTextBoxColumn()
             {
                 Name = "RailroadName",
-                DataPropertyName = "railroad_name", // Assuming column in your database is railroad_name
+                DataPropertyName = "railroad_name",
                 HeaderText = "Railroad Name"
             });
-           
 
             // Load data into the DataGridView
             LoadRailroadData();
 
             // Set up event handler for double-click
             dataGridViewRailroads.CellDoubleClick += DataGridViewRailroads_CellDoubleClick;
-
         }
 
         private void LoadRailroadData()
@@ -53,23 +43,19 @@ namespace FinalProject
 
         private DataTable GetRailroads()
         {
-            string query = "SELECT railroad_id, railroad_name FROM dbo.railroad"; // Adjust table name and columns as per your DB
+            string query = "SELECT railroad_id, railroad_name FROM dbo.railroad"; 
             DataTable railroadsTable = new DataTable();
 
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
-                try
+                DatabaseHelper.ExecuteReader(query, reader =>
                 {
-                    connection.Open();
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
-                    {
-                        adapter.Fill(railroadsTable); // Fill DataTable with query result
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("An error occurred while fetching data: " + ex.Message);
-                }
+                    railroadsTable.Load(reader); // Fill DataTable with query result
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while fetching data: " + ex.Message);
             }
 
             return railroadsTable;
@@ -90,7 +76,5 @@ namespace FinalProject
                 }
             }
         }
-
-
     }
 }

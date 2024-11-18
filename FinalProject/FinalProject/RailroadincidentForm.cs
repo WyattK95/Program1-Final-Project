@@ -1,22 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
 
 namespace FinalProject
 {
     public partial class RailroadincidentForm : Form
     {
-        private readonly int _entityId;         // This will hold the companyId or railroadId.
-        private readonly string _entityType;    // This will differentiate between "railroad" and "company".
-        private readonly string _connectionString;
+        private readonly int _entityId;      // Holds the companyId or railroadId.
+        private readonly string _entityType; // Differentiates between "railroad" and "company".
 
         public RailroadincidentForm(int entityId, string entityType)
         {
@@ -24,16 +16,11 @@ namespace FinalProject
 
             _entityId = entityId;
             _entityType = entityType;
-            _connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
 
             // Load incident data when the form is initialized.
             LoadIncidentData();
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
         private void LoadIncidentData()
         {
             string query = "SELECT * FROM dbo.incident WHERE ";
@@ -55,28 +42,29 @@ namespace FinalProject
 
             DataTable incidentsTable = new DataTable();
 
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
-                try
+                DatabaseHelper.ExecuteReader(query, reader =>
                 {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@EntityId", _entityId);
-                        using (SqlDataAdapter adapter = new SqlDataAdapter(command))
-                        {
-                            adapter.Fill(incidentsTable); // Fill DataTable with query result
-                        }
-                    }
+                    incidentsTable.Load(reader); // Fill DataTable with query result
+                },
+                command =>
+                {
+                    command.Parameters.AddWithValue("@EntityId", _entityId);
+                });
 
-                    // Bind the loaded incidents to a DataGridView
-                    dataGridView1.DataSource = incidentsTable;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("An error occurred while fetching incidents: " + ex.Message);
-                }
+                // Bind the loaded incidents to the DataGridView
+                dataGridView1.DataSource = incidentsTable;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while fetching incidents: " + ex.Message);
+            }
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
         }
     }
 }

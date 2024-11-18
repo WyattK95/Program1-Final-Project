@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FinalProject
@@ -13,6 +6,7 @@ namespace FinalProject
     public partial class MainForm : Form
     {
         private IncidentForm IncidentForm;
+        private PasswordChange PasswordChange;
 
         public MainForm()
         {
@@ -25,19 +19,25 @@ namespace FinalProject
             IncidentForm = new IncidentForm();
             IncidentForm.FormClosed += (s, args) => this.Show();
             IncidentForm.Show();
+        }
 
+        private void passwordLinkLabel_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Pass the current username to the PasswordChange form
+            PasswordChange passwordChangeForm = new PasswordChange(Session.CurrentUsername);
+            passwordChangeForm.ShowDialog();
         }
 
         private void companiesLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            CompanyForm CompanyForm = new CompanyForm();
-            CompanyForm.ShowDialog();
+            CompanyForm companyForm = new CompanyForm();
+            companyForm.ShowDialog();
         }
 
         private void railroadLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            RailroadForm RailroadForm = new RailroadForm();
-            RailroadForm.ShowDialog();
+            RailroadForm railroadForm = new RailroadForm();
+            railroadForm.ShowDialog();
         }
     }
 }

@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             dataGridViewRailroads = new DataGridView();
+            label1 = new Label();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridViewRailroads).BeginInit();
             SuspendLayout();
             // 
@@ -36,26 +38,52 @@
             // 
             dataGridViewRailroads.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridViewRailroads.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewRailroads.Location = new Point(12, 12);
+            dataGridViewRailroads.Location = new Point(11, 68);
+            dataGridViewRailroads.Margin = new Padding(2);
             dataGridViewRailroads.Name = "dataGridViewRailroads";
             dataGridViewRailroads.RowHeadersWidth = 102;
-            dataGridViewRailroads.Size = new Size(1916, 1206);
+            dataGridViewRailroads.Size = new Size(1127, 735);
             dataGridViewRailroads.TabIndex = 0;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(295, 9);
+            label1.Name = "label1";
+            label1.Size = new Size(521, 48);
+            label1.TabIndex = 1;
+            label1.Text = "Railroads Related to Incidents";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(411, 815);
+            label2.Name = "label2";
+            label2.Size = new Size(311, 25);
+            label2.TabIndex = 3;
+            label2.Text = "(Click Railroad Name for more details)";
             // 
             // RailroadForm
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1940, 1230);
+            ClientSize = new Size(1157, 849);
+            Controls.Add(label2);
+            Controls.Add(label1);
             Controls.Add(dataGridViewRailroads);
+            Margin = new Padding(2);
             Name = "RailroadForm";
             Text = "RailroadForm";
             ((System.ComponentModel.ISupportInitialize)dataGridViewRailroads).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private DataGridView dataGridViewRailroads;
+        private Label label1;
+        private Label label2;
     }
 }

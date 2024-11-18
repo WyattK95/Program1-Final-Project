@@ -1,21 +1,19 @@
 using System;
 using System.Data;
-using System.Security.Cryptography;
+using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace FinalProject
 {
     public partial class LoginScreen : Form
     {
-        private readonly string _connectionString;
-
-        private RegistrationForm regForm;
         public LoginScreen()
         {
             InitializeComponent();
 
-            _connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
+            passwordTextBox.UseSystemPasswordChar = true;
+
+            this.AcceptButton = loginButton;
         }
 
         private void loginButton_Click(object sender, EventArgs e)
@@ -31,42 +29,46 @@ namespace FinalProject
                 return;
             }
 
-            byte[] storedHash;
-            byte[] storedSalt;
+            byte[] storedHash = null;
+            byte[] storedSalt = null;
 
             try
             {
-                // Retrieve stored hash and salt from the database
-                using (var connection = new SqlConnection(_connectionString))
+                // Retrieve stored hash and salt from the database using DatabaseHelper
+                string query = "SELECT PasswordHash, Salt FROM Users WHERE Username = @Username";
+
+                bool userExists = false;
+
+                DatabaseHelper.ExecuteReader(query, reader =>
                 {
-                    string query = "SELECT PasswordHash, Salt FROM Users WHERE Username = @Username";
-                    using (var command = new SqlCommand(query, connection))
+                    if (reader.Read())
                     {
-                        command.Parameters.Add("@Username", SqlDbType.NVarChar, 50).Value = username;
-                        connection.Open();
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                storedHash = (byte[])reader["PasswordHash"];
-                                storedSalt = (byte[])reader["Salt"];
-                            }
-                            else
-                            {
-                                MessageBox.Show("Invalid username or password.");
-                                return;
-                            }
-                        }
+                        storedHash = (byte[])reader["PasswordHash"];
+                        storedSalt = (byte[])reader["Salt"];
+                        userExists = true;
                     }
+                }, command =>
+                {
+                    command.Parameters.Add("@Username", SqlDbType.NVarChar, 50).Value = username;
+                });
+
+                if (!userExists)
+                {
+                    MessageBox.Show("Invalid username or password.");
+                    return;
                 }
 
                 // Verify the password using PasswordHelper
                 if (PasswordHelper.VerifyPassword(password, storedHash, storedSalt))
                 {
+                    // Store the current username in the Session class
+                    Session.CurrentUsername = username;
+
                     MessageBox.Show("Login successful!");
                     MainForm mainForm = new MainForm();
+                    mainForm.FormClosed += (s, args) => this.Close();
                     mainForm.Show();
-                    this.Hide(); 
+                    this.Hide();
                 }
                 else
                 {
@@ -79,7 +81,6 @@ namespace FinalProject
             }
         }
 
-
         private void regformButton_Click(object sender, EventArgs e)
         {
             // Hide the login form
@@ -88,6 +89,5 @@ namespace FinalProject
             regForm.FormClosed += (s, args) => this.Show();
             regForm.Show();
         }
-
     }
 }
